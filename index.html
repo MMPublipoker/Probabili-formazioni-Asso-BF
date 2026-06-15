@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Probabili Formazioni Generator</title>
+    <link rel="stylesheet" href="style.css?v=20260608-1810" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow" id="hero-eyebrow">Tool editoriale</p>
+          <h1 id="hero-title">Generatore probabili formazioni</h1>
+          <p class="hero-copy" id="hero-copy">
+            Compila i dati della partita e scarica una grafica JPEG
+            pronta in formato 1200x675.
+          </p>
+        </div>
+        <div class="hero-badge" id="hero-badge">Canvas HTML5 • JPEG 1200x675 • Nessuna dipendenza</div>
+      </header>
+
+      <main class="layout">
+        <section class="panel controls-panel">
+          <form id="graphic-form">
+            <div class="section-heading">
+              <h2>Impostazioni generali</h2>
+              <p id="settings-copy">Configura info partita e background. I colori marker si gestiscono per squadra.</p>
+            </div>
+
+            <div class="fields-grid">
+              <label class="field field-wide">
+                <span>Versione progetto</span>
+                <select id="project-theme" name="projectTheme">
+                  <option value="assopoker">AssoPoker</option>
+                  <option value="betfair">Betfair</option>
+                </select>
+              </label>
+
+              <label class="field field-wide">
+                <span>Info partita</span>
+                <input
+                  id="match-info"
+                  name="matchInfo"
+                  type="text"
+                  placeholder="martedì 9 Giugno - ore 21:00 - DAZN"
+                />
+              </label>
+
+              <label class="field field-wide">
+                <span>Background grafica</span>
+                <select id="background-theme" name="backgroundTheme"></select>
+              </label>
+            </div>
+
+            <div class="team-grid">
+              <fieldset class="team-card">
+                <legend>Squadra sinistra</legend>
+                <label class="field">
+                  <span>Seleziona squadra</span>
+                  <input
+                    id="left-team-palette"
+                    name="leftTeamPalette"
+                    type="text"
+                    list="team-palette-options"
+                    placeholder="Cerca una squadra dal database"
+                    autocomplete="off"
+                  />
+                </label>
+
+                <label class="field">
+                  <span>Nome squadra</span>
+                  <input id="left-team-name" name="leftTeamName" type="text" placeholder="ARGENTINA" />
+                </label>
+
+                <label class="field">
+                  <span>Modulo</span>
+                  <select id="left-formation" name="leftFormation"></select>
+                </label>
+
+                <div class="fields-grid team-colors-grid">
+                  <label class="field color-field">
+                    <span>Colore marker</span>
+                    <input id="left-marker-color" name="leftMarkerColor" type="color" value="#3aa8ff" />
+                  </label>
+
+                  <label class="field color-field">
+                    <span>Bordo marker</span>
+                    <input id="left-marker-border-color" name="leftMarkerBorderColor" type="color" value="#37256d" />
+                  </label>
+                </div>
+
+                <label class="field">
+                  <span>Titolari (11 righe)</span>
+                  <textarea
+                    id="left-starters"
+                    name="leftStarters"
+                    rows="12"
+                    placeholder="Un giocatore per riga"
+                  ></textarea>
+                </label>
+
+                <label class="field">
+                  <span>Panchina</span>
+                  <textarea
+                    id="left-bench"
+                    name="leftBench"
+                    rows="8"
+                    placeholder="Un giocatore per riga"
+                  ></textarea>
+                </label>
+
+                <label class="field">
+                  <span>Assenti</span>
+                  <textarea
+                    id="left-missing"
+                    name="leftMissing"
+                    rows="6"
+                    placeholder="Un giocatore per riga"
+                  ></textarea>
+                </label>
+              </fieldset>
+
+              <fieldset class="team-card">
+                <legend>Squadra destra</legend>
+                <label class="field">
+                  <span>Seleziona squadra</span>
+                  <input
+                    id="right-team-palette"
+                    name="rightTeamPalette"
+                    type="text"
+                    list="team-palette-options"
+                    placeholder="Cerca una squadra dal database"
+                    autocomplete="off"
+                  />
+                </label>
+
+                <label class="field">
+                  <span>Nome squadra</span>
+                  <input id="right-team-name" name="rightTeamName" type="text" placeholder="BRASILE" />
+                </label>
+
+                <label class="field">
+                  <span>Modulo</span>
+                  <select id="right-formation" name="rightFormation"></select>
+                </label>
+
+                <div class="fields-grid team-colors-grid">
+                  <label class="field color-field">
+                    <span>Colore marker</span>
+                    <input id="right-marker-color" name="rightMarkerColor" type="color" value="#3aa8ff" />
+                  </label>
+
+                  <label class="field color-field">
+                    <span>Bordo marker</span>
+                    <input id="right-marker-border-color" name="rightMarkerBorderColor" type="color" value="#37256d" />
+                  </label>
+                </div>
+
+                <label class="field">
+                  <span>Titolari (11 righe)</span>
+                  <textarea
+                    id="right-starters"
+                    name="rightStarters"
+                    rows="12"
+                    placeholder="Un giocatore per riga"
+                  ></textarea>
+                </label>
+
+                <label class="field">
+                  <span>Panchina</span>
+                  <textarea
+                    id="right-bench"
+                    name="rightBench"
+                    rows="8"
+                    placeholder="Un giocatore per riga"
+                  ></textarea>
+                </label>
+
+                <label class="field">
+                  <span>Assenti</span>
+                  <textarea
+                    id="right-missing"
+                    name="rightMissing"
+                    rows="6"
+                    placeholder="Un giocatore per riga"
+                  ></textarea>
+                </label>
+              </fieldset>
+            </div>
+
+            <div class="actions">
+              <button type="button" id="load-example-btn" class="button ghost">Carica esempio</button>
+              <button type="button" id="download-btn" class="button primary" disabled>Scarica JPEG 1200x675</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel preview-panel">
+          <div class="preview-header">
+            <div>
+              <h2>Anteprima</h2>
+              <p id="preview-copy">La preview e il download usano il formato fisso 1200x675.</p>
+            </div>
+            <div class="preview-meta">
+              <span id="preview-size-label">1200x675</span>
+            </div>
+          </div>
+
+          <div class="canvas-frame">
+            <canvas id="graphic-canvas" width="1200" height="675"></canvas>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <datalist id="team-palette-options"></datalist>
+    <script src="team-palette-data.js?v=20260608-1810"></script>
+    <script src="script.js?v=20260608-1810"></script>
+  </body>
+</html>
