@@ -193,7 +193,7 @@ body[data-project-theme="betfair"] .panel {
 }
 
 .team-colors-grid {
-  margin-bottom: 0;
+  margin-bottom: 10px;
 }
 
 .field-wide {
@@ -203,15 +203,22 @@ body[data-project-theme="betfair"] .panel {
 .field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
+  margin-bottom: 10px;
 }
 
 .field span,
 .team-card legend {
-  font-size: 0.76rem;
+  font-size: 0.69rem;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
+}
+
+.field span {
+  text-align: left;
+  padding-left: 4px;
+  margin-bottom: -1px;
 }
 
 .field input,
@@ -267,6 +274,10 @@ body[data-project-theme="betfair"] .panel {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(238, 248, 248, 0.82)),
     linear-gradient(135deg, rgba(81, 205, 177, 0.12), transparent 55%);
+}
+
+.team-card .field:last-child {
+  margin-bottom: 0;
 }
 
 body[data-project-theme="betfair"] .team-card {

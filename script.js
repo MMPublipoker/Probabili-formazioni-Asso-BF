@@ -72,28 +72,28 @@ function createLineSlots(count, customInset) {
 
 const projectThemes = {
   assopoker: {
-    eyebrow: "Tool editoriale",
-    heroTitle: "Generatore probabili formazioni",
-    heroCopy: "Compila i dati della partita e scarica una grafica JPEG pronta in formato 1200x675.",
-    heroBadge: "Canvas HTML5 • JPEG 1200x675 • Nessuna dipendenza",
-    settingsCopy: "Configura info partita e background. I colori marker si gestiscono per squadra.",
-    previewCopy: "La preview e il download usano il formato fisso 1200x675.",
+    eyebrow: "Editorial tool",
+    heroTitle: "Predicted lineups generator",
+    heroCopy: "Fill in the match details and download a ready-to-use 1200x675 JPEG graphic.",
+    heroBadge: "HTML5 Canvas • JPEG 1200x675 • No dependencies",
+    settingsCopy: "Set match details and background. Marker colors are managed per team.",
+    previewCopy: "Preview and download use the fixed 1200x675 format.",
     defaultBackgroundTheme: "backnologo"
   },
   betfair: {
     eyebrow: "Betfair Editorial Tool",
-    heroTitle: "Generatore formazioni Betfair",
-    heroCopy: "Stesso motore del tool AssoPoker, ma con una base grafica dedicata a Betfair e pronta per nuovi asset.",
-    heroBadge: "Betfair Variant • JPEG 1200x675 • Nessuna dipendenza",
-    settingsCopy: "Versione parallela della release AssoPoker. Meccanica invariata, skin dedicata a Betfair.",
-    previewCopy: "La preview usa la stessa logica del tool AssoPoker con una variante grafica Betfair.",
+    heroTitle: "Betfair lineups generator",
+    heroCopy: "The same engine as the AssoPoker tool, with a Betfair-specific visual base ready for new assets.",
+    heroBadge: "Betfair Variant • JPEG 1200x675 • No dependencies",
+    settingsCopy: "Parallel version of the AssoPoker release. Same mechanics, Betfair skin.",
+    previewCopy: "The preview uses the same logic as the AssoPoker tool with a Betfair graphic variant.",
     defaultBackgroundTheme: "betfair-gold"
   }
 };
 
 const exampleDataByTheme = {
   assopoker: {
-    matchInfo: "martedì 9 Giugno - ore 21:00 - DAZN",
+    matchInfo: "Tuesday 9 June - 9:00 PM - DAZN",
     backgroundTheme: "backnologo",
     left: {
       teamName: "ARGENTINA",
@@ -114,7 +114,7 @@ const exampleDataByTheme = {
         "J. Alvarez"
       ],
       bench: ["Rulli", "Montiel", "Pezzella", "Paredes", "Lo Celso", "Di Maria", "Dybala"],
-      missing: ["Nessuno"]
+      missing: ["None"]
     },
     right: {
       teamName: "BRASILE",
@@ -139,7 +139,7 @@ const exampleDataByTheme = {
     }
   },
   betfair: {
-    matchInfo: "sabato 20 Giugno - ore 18:00 - Betfair Live",
+    matchInfo: "Saturday 20 June - 6:00 PM - Betfair Live",
     backgroundTheme: "betfair-gold",
     left: {
       teamName: "ATLETICO MADRID",
@@ -160,7 +160,7 @@ const exampleDataByTheme = {
         "Morata"
       ],
       bench: ["Moldovan", "Witsel", "Azpilicueta", "Saul", "Riquelme", "Correa", "Depay"],
-      missing: ["Nessuno"]
+      missing: ["None"]
     },
     right: {
       teamName: "BORUSSIA DORTMUND",
@@ -181,7 +181,7 @@ const exampleDataByTheme = {
         "Fullkrug"
       ],
       bench: ["Meyer", "Sule", "Bensebaini", "Nmecha", "Reus", "Moukoko", "Haller"],
-      missing: ["Nessuno"]
+      missing: ["None"]
     }
   }
 };
@@ -189,9 +189,9 @@ const exampleDataByTheme = {
 const exampleData = exampleDataByTheme.assopoker;
 
 const defaultFallbacks = {
-  matchInfo: "Prossima partita - orario da definire",
-  leftTeamName: "SQUADRA A",
-  rightTeamName: "SQUADRA B"
+  matchInfo: "Upcoming match - time to be confirmed",
+  leftTeamName: "TEAM A",
+  rightTeamName: "TEAM B"
 };
 const defaultPitchColor = "#38b76a";
 const teamPaletteEntries = (window.teamPaletteData || []).map(([name, markerColor, markerBorderColor, aliases]) => ({
@@ -235,15 +235,15 @@ const localAppUrl = "http://127.0.0.1:4173/index.html";
 
 const backgroundThemesByProject = {
   assopoker: [
-    { key: "backnologo", label: "Originale pulito", path: "assets/backnologo.png?v=20260608-1030" },
-    { key: "back", label: "Blu diagonale", path: "assets/background-back.png?v=20260608-1030" },
-    { key: "backok", label: "Geometrico soft", path: "assets/background-backok.png?v=20260608-1030" },
-    { key: "bck4png", label: "Texture grigia PNG", path: "assets/background-bck4.png?v=20260608-1030" },
-    { key: "bck4jpg", label: "Bianco grafico JPG", path: "assets/background-bck4.jpg?v=20260608-1030" }
+    { key: "backnologo", label: "Clean original", path: "assets/backnologo.png?v=20260608-1030" },
+    { key: "back", label: "Blue diagonal", path: "assets/background-back.png?v=20260608-1030" },
+    { key: "backok", label: "Soft geometric", path: "assets/background-backok.png?v=20260608-1030" },
+    { key: "bck4png", label: "Grey texture PNG", path: "assets/background-bck4.png?v=20260608-1030" },
+    { key: "bck4jpg", label: "White graphic JPG", path: "assets/background-bck4.jpg?v=20260608-1030" }
   ],
   betfair: [
-    { key: "betfair-gold", label: "Betfair Oro", path: "assets/betfair-bg-gold.png?v=20260608-1030" },
-    { key: "betfair-dark", label: "Betfair Scuro", path: "assets/betfair-bg-dark.jpg?v=20260608-1030" }
+    { key: "betfair-gold", label: "Betfair Gold", path: "assets/betfair-bg-gold.png?v=20260608-1030" },
+    { key: "betfair-dark", label: "Betfair Dark", path: "assets/betfair-bg-dark.jpg?v=20260608-1030" }
   ]
 };
 const allBackgroundThemes = Object.values(backgroundThemesByProject).flat();
@@ -588,14 +588,14 @@ function validateData(data, options = {}) {
   for (const team of requiredSides) {
     if (!formations[team.formation]) {
       if (alertOnError) {
-        alert(`Seleziona un modulo valido per ${team.teamName}.`);
+        alert(`Select a valid formation for ${team.teamName}.`);
       }
       return false;
     }
 
     if (requireFullStarters && team.starters.length !== 11) {
       if (alertOnError) {
-        alert(`${team.teamName} deve avere esattamente 11 titolari. Attualmente ne risultano ${team.starters.length}.`);
+        alert(`${team.teamName} must have exactly 11 starters. There are currently ${team.starters.length}.`);
       }
       return false;
     }
@@ -652,7 +652,7 @@ function drawPitchLoadingState(context, layout) {
   context.font = `800 ${Math.max(18, 22 * layout.scaleX)}px ${activeGraphicTextFamily}`;
   context.textAlign = "center";
   context.textBaseline = "middle";
-  context.fillText("CARICAMENTO PITCH...", pitch.x + pitch.width / 2, pitch.y + pitch.height / 2);
+  context.fillText("LOADING PITCH...", pitch.x + pitch.width / 2, pitch.y + pitch.height / 2);
   context.restore();
 }
 
@@ -1508,7 +1508,7 @@ async function handleDownloadClick() {
   const blob = canvasToJpegBlob(canvas, 0.92);
 
   if (!blob) {
-    alert("Non sono riuscito a generare il file JPEG. Riprova.");
+    alert("I couldn't generate the JPEG file. Please try again.");
     return;
   }
 
