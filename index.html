@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lineup Generator</title>
-    <link rel="stylesheet" href="style.css?v=20260619-1325" />
+    <link rel="stylesheet" href="style.css?v=20260619-1355" />
   </head>
   <body>
     <div class="page-shell">
@@ -78,6 +78,11 @@
                   <select id="left-formation" name="leftFormation"></select>
                 </label>
 
+                <label class="field">
+                  <span>Coach / manager</span>
+                  <input id="left-coach" name="leftCoach" type="text" placeholder="Lionel Scaloni" />
+                </label>
+
                 <div class="fields-grid team-colors-grid">
                   <label class="field color-field">
                     <span>Marker color</span>
@@ -143,6 +148,11 @@
                 <label class="field">
                   <span>Formation</span>
                   <select id="right-formation" name="rightFormation"></select>
+                </label>
+
+                <label class="field">
+                  <span>Coach / manager</span>
+                  <input id="right-coach" name="rightCoach" type="text" placeholder="Carlo Ancelotti" />
                 </label>
 
                 <div class="fields-grid team-colors-grid">
@@ -215,7 +225,7 @@
     </div>
 
     <datalist id="team-palette-options"></datalist>
-    <script src="team-palette-data.js?v=20260619-1325"></script>
-    <script src="script.js?v=20260619-1325"></script>
+    <script src="team-palette-data.js?v=20260619-1355"></script>
+    <script src="script.js?v=20260619-1355"></script>
   </body>
 </html>

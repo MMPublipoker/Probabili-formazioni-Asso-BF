@@ -98,6 +98,7 @@ const exampleDataByTheme = {
     left: {
       teamName: "ARGENTINA",
       formation: "4-3-3",
+      coach: "Lionel Scaloni",
       markerColor: "#3aa8ff",
       markerBorderColor: "#37256d",
       starters: [
@@ -119,6 +120,7 @@ const exampleDataByTheme = {
     right: {
       teamName: "BRASILE",
       formation: "4-2-3-1",
+      coach: "Carlo Ancelotti",
       markerColor: "#3aa8ff",
       markerBorderColor: "#37256d",
       starters: [
@@ -144,6 +146,7 @@ const exampleDataByTheme = {
     left: {
       teamName: "ATLETICO MADRID",
       formation: "4-3-3",
+      coach: "Diego Simeone",
       markerColor: "#ffb80c",
       markerBorderColor: "#0f3f31",
       starters: [
@@ -165,6 +168,7 @@ const exampleDataByTheme = {
     right: {
       teamName: "BORUSSIA DORTMUND",
       formation: "4-2-3-1",
+      coach: "Niko Kovac",
       markerColor: "#38b76a",
       markerBorderColor: "#13342d",
       starters: [
@@ -471,6 +475,7 @@ function getActiveTextPalette() {
 function fillTeamFields(side, data) {
   document.getElementById(`${side}-team-name`).value = data.teamName;
   document.getElementById(`${side}-formation`).value = data.formation;
+  document.getElementById(`${side}-coach`).value = data.coach || "";
   document.getElementById(`${side}-marker-color`).value = data.markerColor;
   document.getElementById(`${side}-marker-border-color`).value = data.markerBorderColor;
   document.getElementById(`${side}-starters`).value = data.starters.join("\n");
@@ -553,6 +558,7 @@ function getFormData() {
       side: "left",
       teamName: document.getElementById("left-team-name").value.trim() || defaultFallbacks.leftTeamName,
       formation: document.getElementById("left-formation").value,
+      coach: document.getElementById("left-coach").value.trim(),
       markerColor: document.getElementById("left-marker-color").value,
       markerBorderColor: document.getElementById("left-marker-border-color").value,
       starters: parseLines(document.getElementById("left-starters").value),
@@ -563,6 +569,7 @@ function getFormData() {
       side: "right",
       teamName: document.getElementById("right-team-name").value.trim() || defaultFallbacks.rightTeamName,
       formation: document.getElementById("right-formation").value,
+      coach: document.getElementById("right-coach").value.trim(),
       markerColor: document.getElementById("right-marker-color").value,
       markerBorderColor: document.getElementById("right-marker-border-color").value,
       starters: parseLines(document.getElementById("right-starters").value),
@@ -1176,6 +1183,7 @@ function drawHeader(context, data, layout, canvasWidth) {
   const subFontSize = Math.max(15, canvasWidth * 0.016);
   const infoFontSize = 14 * layout.scaleX;
   const titleMaxWidth = canvasWidth * 0.34;
+  const subLineMaxWidth = canvasWidth * 0.28;
   const sharedTeamTitles = fitSharedSingleLineTexts(
     context,
     [data.left.teamName, data.right.teamName],
@@ -1192,10 +1200,14 @@ function drawHeader(context, data, layout, canvasWidth) {
     fillStyle: textPalette.headerTitle
   });
 
-  drawCenteredText(context, data.left.formation, layout.header.leftFormation.x, layout.header.leftFormation.y, {
+  const leftFormationLine = [data.left.formation, data.left.coach].filter(Boolean).join(" | ");
+  const rightFormationLine = [data.right.formation, data.right.coach].filter(Boolean).join(" | ");
+
+  drawCenteredText(context, leftFormationLine, layout.header.leftFormation.x, layout.header.leftFormation.y, {
     fontSize: subFontSize,
     fontFamily: activeGraphicTextFamily,
-    fillStyle: textPalette.headerMeta
+    fillStyle: textPalette.headerMeta,
+    maxWidth: subLineMaxWidth
   });
 
   drawCenteredText(context, sharedTeamTitles[1].text, layout.header.rightTitle.x, layout.header.rightTitle.y, {
@@ -1205,10 +1217,11 @@ function drawHeader(context, data, layout, canvasWidth) {
     fillStyle: textPalette.headerTitle
   });
 
-  drawCenteredText(context, data.right.formation, layout.header.rightFormation.x, layout.header.rightFormation.y, {
+  drawCenteredText(context, rightFormationLine, layout.header.rightFormation.x, layout.header.rightFormation.y, {
     fontSize: subFontSize,
     fontFamily: activeGraphicTextFamily,
-    fillStyle: textPalette.headerMeta
+    fillStyle: textPalette.headerMeta,
+    maxWidth: subLineMaxWidth
   });
 
   drawCenteredText(context, data.matchInfo, layout.header.info.x, layout.header.info.y, {
