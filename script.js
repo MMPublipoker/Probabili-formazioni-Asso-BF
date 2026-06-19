@@ -235,7 +235,7 @@ const localAppUrl = "http://127.0.0.1:4173/index.html";
 
 const backgroundThemesByProject = {
   assopoker: [
-    { key: "assopoker-main", label: "AssoPoker Background", path: "assets/assopoker-background.jpg?v=20260619-1115" }
+    { key: "assopoker-main", label: "AssoPoker Background", path: "assets/assopoker-background.jpg?v=20260619-1325" }
   ],
   betfair: [
     { key: "betfair-gold", label: "Betfair Gold", path: "assets/betfair-bg-gold.png?v=20260608-1030" },
