@@ -78,7 +78,7 @@ const projectThemes = {
     heroBadge: "HTML5 Canvas • JPEG 1200x675 • No dependencies",
     settingsCopy: "Set match details and background. Marker colors are managed per team.",
     previewCopy: "Preview and download use the fixed 1200x675 format.",
-    defaultBackgroundTheme: "backnologo"
+    defaultBackgroundTheme: "assopoker-main"
   },
   betfair: {
     eyebrow: "Betfair Editorial Tool",
@@ -94,7 +94,7 @@ const projectThemes = {
 const exampleDataByTheme = {
   assopoker: {
     matchInfo: "Tuesday 9 June - 9:00 PM - DAZN",
-    backgroundTheme: "backnologo",
+    backgroundTheme: "assopoker-main",
     left: {
       teamName: "ARGENTINA",
       formation: "4-3-3",
@@ -213,8 +213,8 @@ const manualTeamPaletteAliases = {
   costadavorio: "Ivory Coast"
 };
 const teamPaletteIndex = buildTeamPaletteIndex(teamPaletteEntries, manualTeamPaletteAliases);
-const squadTitleFontFamily = '"Rubik Mono One", "Arial Black", Arial, sans-serif';
-const squadTitleFontPath = "assets/RubikMonoOne-Regular.ttf?v=20260606-1130";
+const squadTitleFontFamily = '"Montserrat ExtraBold Italic", "Arial Black", Arial, sans-serif';
+const squadTitleFontPath = "assets/Montserrat-ExtraBoldItalic.ttf?v=20260619-1125";
 const betfairSquadTitleFontFamily = '"Noto Sans ExtraCondensed Black", "Arial Narrow", Impact, sans-serif';
 const betfairSquadTitleFontPath = "assets/NotoSans-ExtraCondensed-Black.ttf?v=20260608-1045";
 const betfairGraphicTextFontFamily = '"Noto Sans Condensed Bold", "Arial Narrow", Arial, sans-serif';
@@ -235,11 +235,7 @@ const localAppUrl = "http://127.0.0.1:4173/index.html";
 
 const backgroundThemesByProject = {
   assopoker: [
-    { key: "backnologo", label: "Clean original", path: "assets/backnologo.png?v=20260608-1030" },
-    { key: "back", label: "Blue diagonal", path: "assets/background-back.png?v=20260608-1030" },
-    { key: "backok", label: "Soft geometric", path: "assets/background-backok.png?v=20260608-1030" },
-    { key: "bck4png", label: "Grey texture PNG", path: "assets/background-bck4.png?v=20260608-1030" },
-    { key: "bck4jpg", label: "White graphic JPG", path: "assets/background-bck4.jpg?v=20260608-1030" }
+    { key: "assopoker-main", label: "AssoPoker Background", path: "assets/assopoker-background.jpg?v=20260619-1115" }
   ],
   betfair: [
     { key: "betfair-gold", label: "Betfair Gold", path: "assets/betfair-bg-gold.png?v=20260608-1030" },
@@ -250,6 +246,8 @@ const allBackgroundThemes = Object.values(backgroundThemesByProject).flat();
 const backgroundThemeMap = new Map(allBackgroundThemes.map((theme) => [theme.key, theme]));
 const pitchImagePath = "assets/pitch-current.png?v=20260605-1920";
 const pitchOpacity = 0.7;
+const exportRenderScale = 2;
+const exportJpegQuality = 0.98;
 
 const layoutReference = {
   canvas: { width: 1200, height: 675 },
@@ -616,27 +614,41 @@ function drawGraphic(options = {}) {
   }
 
   const output = parseOutputSize(data.outputSize);
-  canvas.width = output.width;
-  canvas.height = output.height;
+  renderGraphicToSurface(canvas, ctx, data, output.width, output.height, { assetsReady });
 
-  const layout = getScaledLayout(output.width, output.height);
+  updatePreviewSizeLabel();
+  return assetsReady;
+}
 
-  drawBackground(ctx, output.width, output.height, data.backgroundTheme);
-  drawSideBoxes(ctx, layout);
-  drawHeader(ctx, data, layout, output.width);
+function configureCanvasRenderingQuality(context) {
+  context.imageSmoothingEnabled = true;
+  if ("imageSmoothingQuality" in context) {
+    context.imageSmoothingQuality = "high";
+  }
+}
+
+function renderGraphicToSurface(targetCanvas, targetContext, data, width, height, options = {}) {
+  const { assetsReady = pitchImageReady } = options;
+
+  targetCanvas.width = width;
+  targetCanvas.height = height;
+  configureCanvasRenderingQuality(targetContext);
+
+  const layout = getScaledLayout(width, height);
+
+  drawBackground(targetContext, width, height, data.backgroundTheme);
+  drawSideBoxes(targetContext, layout);
+  drawHeader(targetContext, data, layout, width);
 
   if (!assetsReady) {
-    drawPitchLoadingState(ctx, layout);
-    updatePreviewSizeLabel();
+    drawPitchLoadingState(targetContext, layout);
     return false;
   }
 
-  drawPitch(ctx, layout);
-  drawPlayers(ctx, [data.left, data.right], layout);
-  drawBenchAndMissing(ctx, data.left, layout.sideLeft, layout);
-  drawBenchAndMissing(ctx, data.right, layout.sideRight, layout);
-
-  updatePreviewSizeLabel();
+  drawPitch(targetContext, layout);
+  drawPlayers(targetContext, [data.left, data.right], layout);
+  drawBenchAndMissing(targetContext, data.left, layout.sideLeft, layout);
+  drawBenchAndMissing(targetContext, data.right, layout.sideRight, layout);
   return true;
 }
 
@@ -826,7 +838,7 @@ function preloadSquadTitleFont() {
     return;
   }
 
-  const font = new FontFace("Rubik Mono One", `url(${squadTitleFontPath})`);
+  const font = new FontFace("Montserrat ExtraBold Italic", `url(${squadTitleFontPath})`);
   font
     .load()
     .then((loadedFont) => {
@@ -1505,7 +1517,32 @@ async function handleDownloadClick() {
   }
 
   const filename = `pronostico-${slugify(data.left.teamName)}-${slugify(data.right.teamName)}-formazioni.jpeg`;
-  const blob = canvasToJpegBlob(canvas, 0.92);
+  const output = parseOutputSize(data.outputSize);
+  const highResCanvas = document.createElement("canvas");
+  const highResContext = highResCanvas.getContext("2d");
+  const finalExportCanvas = document.createElement("canvas");
+  const finalExportContext = finalExportCanvas.getContext("2d");
+
+  if (!highResContext || !finalExportContext) {
+    alert("I couldn't prepare the export canvas. Please try again.");
+    return;
+  }
+
+  renderGraphicToSurface(
+    highResCanvas,
+    highResContext,
+    data,
+    output.width * exportRenderScale,
+    output.height * exportRenderScale,
+    { assetsReady: true }
+  );
+
+  finalExportCanvas.width = output.width;
+  finalExportCanvas.height = output.height;
+  configureCanvasRenderingQuality(finalExportContext);
+  finalExportContext.drawImage(highResCanvas, 0, 0, finalExportCanvas.width, finalExportCanvas.height);
+
+  const blob = canvasToJpegBlob(finalExportCanvas, exportJpegQuality);
 
   if (!blob) {
     alert("I couldn't generate the JPEG file. Please try again.");
@@ -1537,7 +1574,7 @@ async function handleDownloadClick() {
   downloadBlob(blob, filename);
 }
 
-function canvasToJpegBlob(sourceCanvas, quality = 0.92) {
+function canvasToJpegBlob(sourceCanvas, quality = exportJpegQuality) {
   try {
     const dataUrl = sourceCanvas.toDataURL("image/jpeg", quality);
     return dataUrlToBlob(dataUrl);
