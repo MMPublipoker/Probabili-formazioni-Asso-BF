@@ -72,32 +72,33 @@ function createLineSlots(count, customInset) {
 
 const projectThemes = {
   assopoker: {
-    eyebrow: "Tool editoriale",
-    heroTitle: "Generatore probabili formazioni",
-    heroCopy: "Compila i dati della partita e scarica una grafica JPEG pronta in formato 1200x675.",
-    heroBadge: "Canvas HTML5 • JPEG 1200x675 • Nessuna dipendenza",
-    settingsCopy: "Configura info partita e background. I colori marker si gestiscono per squadra.",
-    previewCopy: "La preview e il download usano il formato fisso 1200x675.",
-    defaultBackgroundTheme: "backnologo"
+    eyebrow: "Editorial tool",
+    heroTitle: "Predicted lineups generator",
+    heroCopy: "Fill in the match details and download a ready-to-use 1200x675 JPEG graphic.",
+    heroBadge: "HTML5 Canvas • JPEG 1200x675 • No dependencies",
+    settingsCopy: "Set match details and background. Marker colors are managed per team.",
+    previewCopy: "Preview and download use the fixed 1200x675 format.",
+    defaultBackgroundTheme: "assopoker-main"
   },
   betfair: {
     eyebrow: "Betfair Editorial Tool",
-    heroTitle: "Generatore formazioni Betfair",
-    heroCopy: "Stesso motore del tool AssoPoker, ma con una base grafica dedicata a Betfair e pronta per nuovi asset.",
-    heroBadge: "Betfair Variant • JPEG 1200x675 • Nessuna dipendenza",
-    settingsCopy: "Versione parallela della release AssoPoker. Meccanica invariata, skin dedicata a Betfair.",
-    previewCopy: "La preview usa la stessa logica del tool AssoPoker con una variante grafica Betfair.",
+    heroTitle: "Betfair lineups generator",
+    heroCopy: "The same engine as the AssoPoker tool, with a Betfair-specific visual base ready for new assets.",
+    heroBadge: "Betfair Variant • JPEG 1200x675 • No dependencies",
+    settingsCopy: "Parallel version of the AssoPoker release. Same mechanics, Betfair skin.",
+    previewCopy: "The preview uses the same logic as the AssoPoker tool with a Betfair graphic variant.",
     defaultBackgroundTheme: "betfair-gold"
   }
 };
 
 const exampleDataByTheme = {
   assopoker: {
-    matchInfo: "martedì 9 Giugno - ore 21:00 - DAZN",
-    backgroundTheme: "backnologo",
+    matchInfo: "Tuesday 9 June - 9:00 PM - DAZN",
+    backgroundTheme: "assopoker-main",
     left: {
       teamName: "ARGENTINA",
       formation: "4-3-3",
+      coach: "Lionel Scaloni",
       markerColor: "#3aa8ff",
       markerBorderColor: "#37256d",
       starters: [
@@ -114,11 +115,12 @@ const exampleDataByTheme = {
         "J. Alvarez"
       ],
       bench: ["Rulli", "Montiel", "Pezzella", "Paredes", "Lo Celso", "Di Maria", "Dybala"],
-      missing: ["Nessuno"]
+      missing: ["None"]
     },
     right: {
       teamName: "BRASILE",
       formation: "4-2-3-1",
+      coach: "Carlo Ancelotti",
       markerColor: "#3aa8ff",
       markerBorderColor: "#37256d",
       starters: [
@@ -139,11 +141,12 @@ const exampleDataByTheme = {
     }
   },
   betfair: {
-    matchInfo: "sabato 20 Giugno - ore 18:00 - Betfair Live",
+    matchInfo: "Saturday 20 June - 6:00 PM - Betfair Live",
     backgroundTheme: "betfair-gold",
     left: {
       teamName: "ATLETICO MADRID",
       formation: "4-3-3",
+      coach: "Diego Simeone",
       markerColor: "#ffb80c",
       markerBorderColor: "#0f3f31",
       starters: [
@@ -160,11 +163,12 @@ const exampleDataByTheme = {
         "Morata"
       ],
       bench: ["Moldovan", "Witsel", "Azpilicueta", "Saul", "Riquelme", "Correa", "Depay"],
-      missing: ["Nessuno"]
+      missing: ["None"]
     },
     right: {
       teamName: "BORUSSIA DORTMUND",
       formation: "4-2-3-1",
+      coach: "Niko Kovac",
       markerColor: "#38b76a",
       markerBorderColor: "#13342d",
       starters: [
@@ -181,7 +185,7 @@ const exampleDataByTheme = {
         "Fullkrug"
       ],
       bench: ["Meyer", "Sule", "Bensebaini", "Nmecha", "Reus", "Moukoko", "Haller"],
-      missing: ["Nessuno"]
+      missing: ["None"]
     }
   }
 };
@@ -189,9 +193,9 @@ const exampleDataByTheme = {
 const exampleData = exampleDataByTheme.assopoker;
 
 const defaultFallbacks = {
-  matchInfo: "Prossima partita - orario da definire",
-  leftTeamName: "SQUADRA A",
-  rightTeamName: "SQUADRA B"
+  matchInfo: "Upcoming match - time to be confirmed",
+  leftTeamName: "TEAM A",
+  rightTeamName: "TEAM B"
 };
 const defaultPitchColor = "#38b76a";
 const teamPaletteEntries = (window.teamPaletteData || []).map(([name, markerColor, markerBorderColor, aliases]) => ({
@@ -213,8 +217,8 @@ const manualTeamPaletteAliases = {
   costadavorio: "Ivory Coast"
 };
 const teamPaletteIndex = buildTeamPaletteIndex(teamPaletteEntries, manualTeamPaletteAliases);
-const squadTitleFontFamily = '"Rubik Mono One", "Arial Black", Arial, sans-serif';
-const squadTitleFontPath = "assets/RubikMonoOne-Regular.ttf?v=20260606-1130";
+const squadTitleFontFamily = '"Montserrat ExtraBold Italic", "Arial Black", Arial, sans-serif';
+const squadTitleFontPath = "assets/Montserrat-ExtraBoldItalic.ttf?v=20260619-1125";
 const betfairSquadTitleFontFamily = '"Noto Sans ExtraCondensed Black", "Arial Narrow", Impact, sans-serif';
 const betfairSquadTitleFontPath = "assets/NotoSans-ExtraCondensed-Black.ttf?v=20260608-1045";
 const betfairGraphicTextFontFamily = '"Noto Sans Condensed Bold", "Arial Narrow", Arial, sans-serif';
@@ -235,21 +239,19 @@ const localAppUrl = "http://127.0.0.1:4173/index.html";
 
 const backgroundThemesByProject = {
   assopoker: [
-    { key: "backnologo", label: "Originale pulito", path: "assets/backnologo.png?v=20260608-1030" },
-    { key: "back", label: "Blu diagonale", path: "assets/background-back.png?v=20260608-1030" },
-    { key: "backok", label: "Geometrico soft", path: "assets/background-backok.png?v=20260608-1030" },
-    { key: "bck4png", label: "Texture grigia PNG", path: "assets/background-bck4.png?v=20260608-1030" },
-    { key: "bck4jpg", label: "Bianco grafico JPG", path: "assets/background-bck4.jpg?v=20260608-1030" }
+    { key: "assopoker-main", label: "AssoPoker Background", path: "assets/assopoker-background.jpg?v=20260625-1705" }
   ],
   betfair: [
-    { key: "betfair-gold", label: "Betfair Oro", path: "assets/betfair-bg-gold.png?v=20260608-1030" },
-    { key: "betfair-dark", label: "Betfair Scuro", path: "assets/betfair-bg-dark.jpg?v=20260608-1030" }
+    { key: "betfair-gold", label: "Betfair Gold", path: "assets/betfair-bg-gold.png?v=20260608-1030" },
+    { key: "betfair-dark", label: "Betfair Dark", path: "assets/betfair-bg-dark.jpg?v=20260608-1030" }
   ]
 };
 const allBackgroundThemes = Object.values(backgroundThemesByProject).flat();
 const backgroundThemeMap = new Map(allBackgroundThemes.map((theme) => [theme.key, theme]));
 const pitchImagePath = "assets/pitch-current.png?v=20260605-1920";
 const pitchOpacity = 0.7;
+const exportRenderScale = 2;
+const exportJpegQuality = 0.98;
 
 const layoutReference = {
   canvas: { width: 1200, height: 675 },
@@ -473,6 +475,7 @@ function getActiveTextPalette() {
 function fillTeamFields(side, data) {
   document.getElementById(`${side}-team-name`).value = data.teamName;
   document.getElementById(`${side}-formation`).value = data.formation;
+  document.getElementById(`${side}-coach`).value = data.coach || "";
   document.getElementById(`${side}-marker-color`).value = data.markerColor;
   document.getElementById(`${side}-marker-border-color`).value = data.markerBorderColor;
   document.getElementById(`${side}-starters`).value = data.starters.join("\n");
@@ -555,6 +558,7 @@ function getFormData() {
       side: "left",
       teamName: document.getElementById("left-team-name").value.trim() || defaultFallbacks.leftTeamName,
       formation: document.getElementById("left-formation").value,
+      coach: document.getElementById("left-coach").value.trim(),
       markerColor: document.getElementById("left-marker-color").value,
       markerBorderColor: document.getElementById("left-marker-border-color").value,
       starters: parseLines(document.getElementById("left-starters").value),
@@ -565,6 +569,7 @@ function getFormData() {
       side: "right",
       teamName: document.getElementById("right-team-name").value.trim() || defaultFallbacks.rightTeamName,
       formation: document.getElementById("right-formation").value,
+      coach: document.getElementById("right-coach").value.trim(),
       markerColor: document.getElementById("right-marker-color").value,
       markerBorderColor: document.getElementById("right-marker-border-color").value,
       starters: parseLines(document.getElementById("right-starters").value),
@@ -588,14 +593,14 @@ function validateData(data, options = {}) {
   for (const team of requiredSides) {
     if (!formations[team.formation]) {
       if (alertOnError) {
-        alert(`Seleziona un modulo valido per ${team.teamName}.`);
+        alert(`Select a valid formation for ${team.teamName}.`);
       }
       return false;
     }
 
     if (requireFullStarters && team.starters.length !== 11) {
       if (alertOnError) {
-        alert(`${team.teamName} deve avere esattamente 11 titolari. Attualmente ne risultano ${team.starters.length}.`);
+        alert(`${team.teamName} must have exactly 11 starters. There are currently ${team.starters.length}.`);
       }
       return false;
     }
@@ -616,27 +621,41 @@ function drawGraphic(options = {}) {
   }
 
   const output = parseOutputSize(data.outputSize);
-  canvas.width = output.width;
-  canvas.height = output.height;
+  renderGraphicToSurface(canvas, ctx, data, output.width, output.height, { assetsReady });
 
-  const layout = getScaledLayout(output.width, output.height);
+  updatePreviewSizeLabel();
+  return assetsReady;
+}
 
-  drawBackground(ctx, output.width, output.height, data.backgroundTheme);
-  drawSideBoxes(ctx, layout);
-  drawHeader(ctx, data, layout, output.width);
+function configureCanvasRenderingQuality(context) {
+  context.imageSmoothingEnabled = true;
+  if ("imageSmoothingQuality" in context) {
+    context.imageSmoothingQuality = "high";
+  }
+}
+
+function renderGraphicToSurface(targetCanvas, targetContext, data, width, height, options = {}) {
+  const { assetsReady = pitchImageReady } = options;
+
+  targetCanvas.width = width;
+  targetCanvas.height = height;
+  configureCanvasRenderingQuality(targetContext);
+
+  const layout = getScaledLayout(width, height);
+
+  drawBackground(targetContext, width, height, data.backgroundTheme);
+  drawSideBoxes(targetContext, layout);
+  drawHeader(targetContext, data, layout, width);
 
   if (!assetsReady) {
-    drawPitchLoadingState(ctx, layout);
-    updatePreviewSizeLabel();
+    drawPitchLoadingState(targetContext, layout);
     return false;
   }
 
-  drawPitch(ctx, layout);
-  drawPlayers(ctx, [data.left, data.right], layout);
-  drawBenchAndMissing(ctx, data.left, layout.sideLeft, layout);
-  drawBenchAndMissing(ctx, data.right, layout.sideRight, layout);
-
-  updatePreviewSizeLabel();
+  drawPitch(targetContext, layout);
+  drawPlayers(targetContext, [data.left, data.right], layout);
+  drawBenchAndMissing(targetContext, data.left, layout.sideLeft, layout);
+  drawBenchAndMissing(targetContext, data.right, layout.sideRight, layout);
   return true;
 }
 
@@ -652,7 +671,7 @@ function drawPitchLoadingState(context, layout) {
   context.font = `800 ${Math.max(18, 22 * layout.scaleX)}px ${activeGraphicTextFamily}`;
   context.textAlign = "center";
   context.textBaseline = "middle";
-  context.fillText("CARICAMENTO PITCH...", pitch.x + pitch.width / 2, pitch.y + pitch.height / 2);
+  context.fillText("LOADING PITCH...", pitch.x + pitch.width / 2, pitch.y + pitch.height / 2);
   context.restore();
 }
 
@@ -826,7 +845,7 @@ function preloadSquadTitleFont() {
     return;
   }
 
-  const font = new FontFace("Rubik Mono One", `url(${squadTitleFontPath})`);
+  const font = new FontFace("Montserrat ExtraBold Italic", `url(${squadTitleFontPath})`);
   font
     .load()
     .then((loadedFont) => {
@@ -1164,6 +1183,7 @@ function drawHeader(context, data, layout, canvasWidth) {
   const subFontSize = Math.max(15, canvasWidth * 0.016);
   const infoFontSize = 14 * layout.scaleX;
   const titleMaxWidth = canvasWidth * 0.34;
+  const subLineMaxWidth = canvasWidth * 0.28;
   const sharedTeamTitles = fitSharedSingleLineTexts(
     context,
     [data.left.teamName, data.right.teamName],
@@ -1180,10 +1200,14 @@ function drawHeader(context, data, layout, canvasWidth) {
     fillStyle: textPalette.headerTitle
   });
 
-  drawCenteredText(context, data.left.formation, layout.header.leftFormation.x, layout.header.leftFormation.y, {
+  const leftFormationLine = [data.left.formation, data.left.coach].filter(Boolean).join(" | ");
+  const rightFormationLine = [data.right.formation, data.right.coach].filter(Boolean).join(" | ");
+
+  drawCenteredText(context, leftFormationLine, layout.header.leftFormation.x, layout.header.leftFormation.y, {
     fontSize: subFontSize,
     fontFamily: activeGraphicTextFamily,
-    fillStyle: textPalette.headerMeta
+    fillStyle: textPalette.headerMeta,
+    maxWidth: subLineMaxWidth
   });
 
   drawCenteredText(context, sharedTeamTitles[1].text, layout.header.rightTitle.x, layout.header.rightTitle.y, {
@@ -1193,10 +1217,11 @@ function drawHeader(context, data, layout, canvasWidth) {
     fillStyle: textPalette.headerTitle
   });
 
-  drawCenteredText(context, data.right.formation, layout.header.rightFormation.x, layout.header.rightFormation.y, {
+  drawCenteredText(context, rightFormationLine, layout.header.rightFormation.x, layout.header.rightFormation.y, {
     fontSize: subFontSize,
     fontFamily: activeGraphicTextFamily,
-    fillStyle: textPalette.headerMeta
+    fillStyle: textPalette.headerMeta,
+    maxWidth: subLineMaxWidth
   });
 
   drawCenteredText(context, data.matchInfo, layout.header.info.x, layout.header.info.y, {
@@ -1505,10 +1530,35 @@ async function handleDownloadClick() {
   }
 
   const filename = `pronostico-${slugify(data.left.teamName)}-${slugify(data.right.teamName)}-formazioni.jpeg`;
-  const blob = canvasToJpegBlob(canvas, 0.92);
+  const output = parseOutputSize(data.outputSize);
+  const highResCanvas = document.createElement("canvas");
+  const highResContext = highResCanvas.getContext("2d");
+  const finalExportCanvas = document.createElement("canvas");
+  const finalExportContext = finalExportCanvas.getContext("2d");
+
+  if (!highResContext || !finalExportContext) {
+    alert("I couldn't prepare the export canvas. Please try again.");
+    return;
+  }
+
+  renderGraphicToSurface(
+    highResCanvas,
+    highResContext,
+    data,
+    output.width * exportRenderScale,
+    output.height * exportRenderScale,
+    { assetsReady: true }
+  );
+
+  finalExportCanvas.width = output.width;
+  finalExportCanvas.height = output.height;
+  configureCanvasRenderingQuality(finalExportContext);
+  finalExportContext.drawImage(highResCanvas, 0, 0, finalExportCanvas.width, finalExportCanvas.height);
+
+  const blob = canvasToJpegBlob(finalExportCanvas, exportJpegQuality);
 
   if (!blob) {
-    alert("Non sono riuscito a generare il file JPEG. Riprova.");
+    alert("I couldn't generate the JPEG file. Please try again.");
     return;
   }
 
@@ -1537,7 +1587,7 @@ async function handleDownloadClick() {
   downloadBlob(blob, filename);
 }
 
-function canvasToJpegBlob(sourceCanvas, quality = 0.92) {
+function canvasToJpegBlob(sourceCanvas, quality = exportJpegQuality) {
   try {
     const dataUrl = sourceCanvas.toDataURL("image/jpeg", quality);
     return dataUrlToBlob(dataUrl);
