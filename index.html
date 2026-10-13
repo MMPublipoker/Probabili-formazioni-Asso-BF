@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lineup Generator</title>
-    <link rel="stylesheet" href="style.css?v=20260619-1355" />
+    <link rel="stylesheet" href="style.css?v=20261013-1200" />
   </head>
   <body>
     <div class="page-shell">
@@ -13,11 +13,11 @@
           <p class="eyebrow" id="hero-eyebrow">Editorial tool</p>
           <h1 id="hero-title">Predicted lineups generator</h1>
           <p class="hero-copy" id="hero-copy">
-            Fill in the match details and download a ready-to-use
-            1200x675 JPEG graphic.
+            Fill in the match details and download a ready-to-use JPEG
+            graphic (vertical 1080x1350 or horizontal 1200x675).
           </p>
         </div>
-        <div class="hero-badge" id="hero-badge">HTML5 Canvas • JPEG 1200x675 • No dependencies</div>
+        <div class="hero-badge" id="hero-badge">HTML5 Canvas • JPEG 1080x1350 / 1200x675 • No dependencies</div>
       </header>
 
       <main class="layout">
@@ -34,6 +34,14 @@
                 <select id="project-theme" name="projectTheme">
                   <option value="assopoker">AssoPoker</option>
                   <option value="betfair">Betfair</option>
+                </select>
+              </label>
+
+              <label class="field field-wide">
+                <span>Graphic format</span>
+                <select id="output-format" name="outputFormat">
+                  <option value="vertical">Vertical 1080x1350 (mobile)</option>
+                  <option value="horizontal">Horizontal 1200x675</option>
                 </select>
               </label>
 
@@ -201,7 +209,7 @@
 
             <div class="actions">
               <button type="button" id="load-example-btn" class="button ghost">Load example</button>
-              <button type="button" id="download-btn" class="button primary" disabled>Download JPEG 1200x675</button>
+              <button type="button" id="download-btn" class="button primary" disabled>Download JPEG 1080x1350</button>
             </div>
           </form>
         </section>
@@ -210,22 +218,22 @@
           <div class="preview-header">
             <div>
               <h2>Preview</h2>
-              <p id="preview-copy">Preview and download use the fixed 1200x675 format.</p>
+              <p id="preview-copy">Preview and download use the selected graphic format.</p>
             </div>
             <div class="preview-meta">
-              <span id="preview-size-label">1200x675</span>
+              <span id="preview-size-label">1080x1350</span>
             </div>
           </div>
 
-          <div class="canvas-frame">
-            <canvas id="graphic-canvas" width="1200" height="675"></canvas>
+          <div class="canvas-frame" data-orientation="vertical">
+            <canvas id="graphic-canvas" width="1080" height="1350"></canvas>
           </div>
         </section>
       </main>
     </div>
 
     <datalist id="team-palette-options"></datalist>
-    <script src="team-palette-data.js?v=20260619-1355"></script>
-    <script src="script.js?v=20260619-1355"></script>
+    <script src="team-palette-data.js?v=20261013-1200"></script>
+    <script src="script.js?v=20261013-1200"></script>
   </body>
 </html>

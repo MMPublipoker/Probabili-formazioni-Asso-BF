@@ -393,6 +393,11 @@ canvas {
   box-shadow: 0 20px 40px rgba(10, 56, 62, 0.18);
 }
 
+.canvas-frame[data-orientation="vertical"] canvas {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
 body[data-project-theme="betfair"] canvas {
   background: #0d241e;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.22);
