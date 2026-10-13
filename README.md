@@ -10,7 +10,9 @@ Tool statico in `HTML`, `CSS` e `JavaScript vanilla` per creare grafiche editori
 
 ## 2. Come generare una grafica
 
-1. Il tool lavora in formato fisso `1200x675`.
+1. Scegli il formato in `Graphic format`:
+   - `Vertical 1080x1350 (mobile)` (predefinito): campo verticale, squadra di sinistra in alto e squadra di destra in basso; panchina a sinistra e assenti a destra di ciascuna metà campo.
+   - `Horizontal 1200x675`: il layout orizzontale classico.
 2. Inserisci info partita, background, colori e dati delle due squadre.
 3. Compila i `titolari` con esattamente 11 righe per squadra.
 4. Premi `Carica esempio` per vedere subito un layout completo.
@@ -18,7 +20,7 @@ Tool statico in `HTML`, `CSS` e `JavaScript vanilla` per creare grafiche editori
 
 ## 3. Come esportare il JPEG
 
-1. Quando il pulsante si abilita, clicca su `Scarica JPEG 1200x675`.
+1. Quando il pulsante si abilita, clicca su `Download JPEG` (la dimensione dipende dal formato scelto).
 2. Il file viene salvato localmente con nome automatico:
    `pronostico-[squadra-sinistra]-[squadra-destra]-formazioni.jpeg`
 

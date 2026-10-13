@@ -74,17 +74,17 @@ const projectThemes = {
   assopoker: {
     eyebrow: "Editorial tool",
     heroTitle: "Predicted lineups generator",
-    heroCopy: "Fill in the match details and download a ready-to-use 1200x675 JPEG graphic.",
-    heroBadge: "HTML5 Canvas • JPEG 1200x675 • No dependencies",
+    heroCopy: "Fill in the match details and download a ready-to-use JPEG graphic (vertical 1080x1350 or horizontal 1200x675).",
+    heroBadge: "HTML5 Canvas • JPEG 1080x1350 / 1200x675 • No dependencies",
     settingsCopy: "Set match details and background. Marker colors are managed per team.",
-    previewCopy: "Preview and download use the fixed 1200x675 format.",
+    previewCopy: "Preview and download use the selected graphic format.",
     defaultBackgroundTheme: "assopoker-main"
   },
   betfair: {
     eyebrow: "Betfair Editorial Tool",
     heroTitle: "Betfair lineups generator",
     heroCopy: "The same engine as the AssoPoker tool, with a Betfair-specific visual base ready for new assets.",
-    heroBadge: "Betfair Variant • JPEG 1200x675 • No dependencies",
+    heroBadge: "Betfair Variant • JPEG 1080x1350 / 1200x675 • No dependencies",
     settingsCopy: "Parallel version of the AssoPoker release. Same mechanics, Betfair skin.",
     previewCopy: "The preview uses the same logic as the AssoPoker tool with a Betfair graphic variant.",
     defaultBackgroundTheme: "betfair-gold"
@@ -234,12 +234,31 @@ const sideSectionListFontPath = "assets/Rubik-Regular.ttf?v=20260606-1535";
 const playerLabelFontFamily = '"Rubik Medium", Arial, sans-serif';
 const matchInfoFontFamily = '"Rubik Italic", Arial, sans-serif';
 const matchInfoFontPath = "assets/Rubik-Italic.ttf?v=20260606-1620";
-const fixedOutputSize = "1200x675";
+const outputFormats = {
+  vertical: { size: "1080x1350", label: "Vertical 1080x1350" },
+  horizontal: { size: "1200x675", label: "Horizontal 1200x675" }
+};
+const defaultOutputFormat = "vertical";
 const localAppUrl = "http://127.0.0.1:4173/index.html";
 
 const backgroundThemesByProject = {
   assopoker: [
-    { key: "assopoker-main", label: "AssoPoker Background", path: "assets/assopoker-background.jpg?v=20260619-1325" }
+    {
+      key: "assopoker-main",
+      label: "AssoPoker Background",
+      path: "assets/assopoker-background.jpg?v=20260619-1325",
+      // Nel formato verticale lo sfondo orizzontale viene ricomposto: texture centrale + pennellate agli angoli.
+      verticalComposition: {
+        base: { x: 380, y: 110, width: 432, height: 540 },
+        cornerScale: 1.5,
+        corners: [
+          { corner: "top-left", x: 0, y: 0, width: 230, height: 110 },
+          { corner: "top-right", x: 1010, y: 0, width: 190, height: 90 },
+          { corner: "bottom-left", x: 0, y: 510, width: 140, height: 165 },
+          { corner: "bottom-right", x: 1120, y: 490, width: 80, height: 185 }
+        ]
+      }
+    }
   ],
   betfair: [
     { key: "betfair-gold", label: "Betfair Gold", path: "assets/betfair-bg-gold.png?v=20260608-1030" },
@@ -252,6 +271,20 @@ const pitchImagePath = "assets/pitch-current.png?v=20260605-1920";
 const pitchOpacity = 0.7;
 const exportRenderScale = 2;
 const exportJpegQuality = 0.98;
+
+const verticalLayoutReference = {
+  canvas: { width: 1080, height: 1350 },
+  pitchArea: { x: 212, y: 146, width: 656, height: 1056 },
+  sizeScale: 1.35,
+  sideColumns: { inset: 10, gapFromPitch: 6, halfGap: 12 },
+  header: {
+    info: { x: 540, y: 32 },
+    topTitle: { x: 540, y: 76 },
+    topFormation: { x: 540, y: 116 },
+    bottomTitle: { x: 540, y: 1250 },
+    bottomFormation: { x: 540, y: 1292 }
+  }
+};
 
 const layoutReference = {
   canvas: { width: 1200, height: 675 },
@@ -275,6 +308,8 @@ let pitchImage;
 let pitchImageReady = false;
 let pitchImageCrop = null;
 let pitchPlayableAreaRatios = { left: 0.055, top: 0.05, right: 0.945, bottom: 0.95 };
+let verticalPitchImage = null;
+const backgroundStrokeLayers = new Map();
 let livePreviewTimeout;
 let squadTitleFontReady = false;
 let betfairSquadTitleFontReady = false;
@@ -313,6 +348,7 @@ function init() {
   setupTeamPaletteInput("left");
   setupTeamPaletteInput("right");
   document.getElementById("project-theme").addEventListener("change", handleProjectThemeChange);
+  document.getElementById("output-format").value = defaultOutputFormat;
 
   document.getElementById("load-example-btn").addEventListener("click", () => {
     loadExample(document.getElementById("project-theme").value);
@@ -436,6 +472,11 @@ function getActiveProjectTheme() {
   return document.getElementById("project-theme")?.value || "assopoker";
 }
 
+function getActiveOutputFormatKey() {
+  const value = document.getElementById("output-format")?.value;
+  return outputFormats[value] ? value : defaultOutputFormat;
+}
+
 function getActiveGraphicTextFontFamily() {
   return getActiveProjectTheme() === "betfair" ? betfairGraphicTextFontFamily : graphicTextFontFamily;
 }
@@ -551,7 +592,8 @@ function normalizeSearchText(value) {
 function getFormData() {
   return {
     projectTheme: document.getElementById("project-theme").value || "assopoker",
-    outputSize: fixedOutputSize,
+    orientation: getActiveOutputFormatKey(),
+    outputSize: outputFormats[getActiveOutputFormatKey()].size,
     matchInfo: document.getElementById("match-info").value.trim() || defaultFallbacks.matchInfo,
     backgroundTheme: document.getElementById("background-theme").value || projectThemes.assopoker.defaultBackgroundTheme,
     left: {
@@ -640,6 +682,10 @@ function renderGraphicToSurface(targetCanvas, targetContext, data, width, height
   targetCanvas.width = width;
   targetCanvas.height = height;
   configureCanvasRenderingQuality(targetContext);
+
+  if (data.orientation === "vertical") {
+    return renderVerticalGraphic(targetContext, data, width, height, assetsReady);
+  }
 
   const layout = getScaledLayout(width, height);
 
@@ -1003,6 +1049,7 @@ function preloadPitchImage() {
         bottom: (whiteLineBounds.y + whiteLineBounds.height - pitchImageCrop.y) / pitchImageCrop.height
       };
     }
+    verticalPitchImage = createRotatedImage(pitchImage);
     drawGraphic({ strict: false, alertOnError: false });
   });
   pitchImage.addEventListener("error", () => {
@@ -1154,11 +1201,11 @@ function detectWhiteLineBounds(image, crop) {
   };
 }
 
-function getPlayablePitchBounds(pitch) {
-  const left = pitch.x + pitch.width * pitchPlayableAreaRatios.left;
-  const top = pitch.y + pitch.height * pitchPlayableAreaRatios.top;
-  const right = pitch.x + pitch.width * pitchPlayableAreaRatios.right;
-  const bottom = pitch.y + pitch.height * pitchPlayableAreaRatios.bottom;
+function getPlayablePitchBounds(pitch, ratios = pitchPlayableAreaRatios) {
+  const left = pitch.x + pitch.width * ratios.left;
+  const top = pitch.y + pitch.height * ratios.top;
+  const right = pitch.x + pitch.width * ratios.right;
+  const bottom = pitch.y + pitch.height * ratios.bottom;
 
   return {
     x: left,
@@ -1234,13 +1281,15 @@ function drawHeader(context, data, layout, canvasWidth) {
 
 function drawPitch(context, layout) {
   const pitch = layout.pitch;
+  const isVertical = layout.orientation === "vertical";
+  const activePitchImage = isVertical ? verticalPitchImage : pitchImage;
 
-  if (pitchImageReady && pitchImage) {
+  if (pitchImageReady && activePitchImage) {
     context.save();
     context.globalAlpha = pitchOpacity;
     roundedRect(context, pitch.x, pitch.y, pitch.width, pitch.height, 22 * layout.scaleX, false, false);
     context.clip();
-    drawTrimmedImage(context, pitchImage, pitchImageCrop, pitch.x, pitch.y, pitch.width, pitch.height);
+    drawTrimmedImage(context, activePitchImage, isVertical ? null : pitchImageCrop, pitch.x, pitch.y, pitch.width, pitch.height);
     context.restore();
     return;
   }
@@ -1411,7 +1460,7 @@ function drawPlayer(context, playerData) {
   const labelPaddingX = 5 * playerData.scale;
   const labelPaddingY = 3.5 * playerData.scale;
   const markerLabelGap = 3 * playerData.scale;
-  const maxLabelWidth = Math.min(renderBounds.width * 0.16, 96 * playerData.scale);
+  const maxLabelWidth = playerData.maxLabelWidth || Math.min(renderBounds.width * 0.16, 96 * playerData.scale);
   const innerPadding = 4 * playerData.scale;
 
   const safeName = playerData.name.toUpperCase();
@@ -1521,6 +1570,347 @@ function drawBoxContent(context, box, title, items, layout, options = {}) {
     color: textPalette.sideList,
     align: listAlign
   });
+}
+
+function renderVerticalGraphic(context, data, width, height, assetsReady) {
+  const layout = getVerticalLayout(width, height);
+
+  drawVerticalBackground(context, width, height, data.backgroundTheme);
+  drawVerticalHeader(context, data, layout);
+
+  if (!assetsReady) {
+    drawPitchLoadingState(context, layout);
+    return false;
+  }
+
+  drawPitch(context, layout);
+  drawVerticalPlayers(context, [data.left, data.right], layout);
+  drawVerticalBenchAndMissing(context, data.left, layout.top, layout);
+  drawVerticalBenchAndMissing(context, data.right, layout.bottom, layout);
+  return true;
+}
+
+function getVerticalLayout(width, height) {
+  const reference = verticalLayoutReference;
+  const unitX = width / reference.canvas.width;
+  const unitY = height / reference.canvas.height;
+  const scale = unitX * reference.sizeScale;
+  const pitch = {
+    x: reference.pitchArea.x * unitX,
+    y: reference.pitchArea.y * unitY,
+    width: reference.pitchArea.width * unitX,
+    height: reference.pitchArea.height * unitY
+  };
+  const { inset, gapFromPitch, halfGap } = reference.sideColumns;
+  const columnWidth = (reference.pitchArea.x - inset - gapFromPitch) * unitX;
+  const leftColumnX = inset * unitX;
+  const rightColumnX = pitch.x + pitch.width + gapFromPitch * unitX;
+  const halfHeight = pitch.height / 2 - halfGap * unitY;
+  const buildHalf = (y) => ({
+    bench: { x: leftColumnX, y, width: columnWidth, height: halfHeight },
+    missing: { x: rightColumnX, y, width: columnWidth, height: halfHeight }
+  });
+
+  return {
+    orientation: "vertical",
+    unitX,
+    unitY,
+    scaleX: scale,
+    scaleY: scale,
+    pitch,
+    top: buildHalf(pitch.y),
+    bottom: buildHalf(pitch.y + pitch.height / 2 + halfGap * unitY),
+    header: {
+      info: scalePoint(reference.header.info, unitX, unitY),
+      topTitle: scalePoint(reference.header.topTitle, unitX, unitY),
+      topFormation: scalePoint(reference.header.topFormation, unitX, unitY),
+      bottomTitle: scalePoint(reference.header.bottomTitle, unitX, unitY),
+      bottomFormation: scalePoint(reference.header.bottomFormation, unitX, unitY)
+    }
+  };
+}
+
+function drawVerticalBackground(context, width, height, backgroundThemeKey) {
+  const theme = backgroundThemeMap.get(backgroundThemeKey);
+  const background = backgroundImages.get(backgroundThemeKey);
+  const composition = theme?.verticalComposition;
+
+  if (!composition || !background?.ready || !background.image) {
+    drawBackground(context, width, height, backgroundThemeKey);
+    return;
+  }
+
+  const { base } = composition;
+  context.drawImage(background.image, base.x, base.y, base.width, base.height, 0, 0, width, height);
+
+  const cornerScale = composition.cornerScale * (width / verticalLayoutReference.canvas.width);
+  composition.corners.forEach((piece) => {
+    const pieceWidth = piece.width * cornerScale;
+    const pieceHeight = piece.height * cornerScale;
+    const isRight = piece.corner.endsWith("right");
+    const isBottom = piece.corner.startsWith("bottom");
+    const strokeLayer = getBackgroundStrokeLayer(backgroundThemeKey, background.image, piece);
+    context.drawImage(strokeLayer, isRight ? width - pieceWidth : 0, isBottom ? height - pieceHeight : 0, pieceWidth, pieceHeight);
+  });
+}
+
+function getBackgroundStrokeLayer(themeKey, image, piece) {
+  const cacheKey = `${themeKey}:${piece.corner}`;
+  if (backgroundStrokeLayers.has(cacheKey)) {
+    return backgroundStrokeLayers.get(cacheKey);
+  }
+
+  const layer = document.createElement("canvas");
+  layer.width = piece.width;
+  layer.height = piece.height;
+  const layerContext = layer.getContext("2d", { willReadFrequently: true });
+  layerContext.drawImage(image, piece.x, piece.y, piece.width, piece.height, 0, 0, piece.width, piece.height);
+
+  // Tiene solo le pennellate colorate: la texture grigio chiaro diventa trasparente.
+  const pixels = layerContext.getImageData(0, 0, piece.width, piece.height);
+  const { data } = pixels;
+  for (let index = 0; index < data.length; index += 4) {
+    const darkest = Math.min(data[index], data[index + 1], data[index + 2]);
+    data[index + 3] = Math.round(clamp((190 - darkest) / 45, 0, 1) * 255);
+  }
+  layerContext.putImageData(pixels, 0, 0);
+
+  backgroundStrokeLayers.set(cacheKey, layer);
+  return layer;
+}
+
+function createRotatedImage(image) {
+  const rotated = document.createElement("canvas");
+  rotated.width = image.naturalHeight;
+  rotated.height = image.naturalWidth;
+  const rotatedContext = rotated.getContext("2d");
+  rotatedContext.translate(rotated.width, 0);
+  rotatedContext.rotate(Math.PI / 2);
+  rotatedContext.drawImage(image, 0, 0);
+  return rotated;
+}
+
+function getVerticalPlayableAreaRatios() {
+  // Il campo verticale è ruotato di 90° in senso orario rispetto all'immagine originale.
+  return {
+    left: 1 - pitchPlayableAreaRatios.bottom,
+    right: 1 - pitchPlayableAreaRatios.top,
+    top: pitchPlayableAreaRatios.left,
+    bottom: pitchPlayableAreaRatios.right
+  };
+}
+
+function drawVerticalHeader(context, data, layout) {
+  const activeProjectTheme = getActiveProjectTheme();
+  const activeSquadTitleFontFamily = activeProjectTheme === "betfair" ? betfairSquadTitleFontFamily : squadTitleFontFamily;
+  const activeGraphicTextFamily = getActiveGraphicTextFontFamily();
+  const activeMatchInfoFontFamily = getActiveMatchInfoFontFamily();
+  const textPalette = getActiveTextPalette();
+  const titleFontSize = 44 * layout.unitX;
+  const subFontSize = 24 * layout.unitX;
+  const infoFontSize = 20 * layout.unitX;
+  const titleMaxWidth = 1000 * layout.unitX;
+  const sharedTeamTitles = fitSharedSingleLineTexts(
+    context,
+    [data.left.teamName, data.right.teamName],
+    titleFontSize,
+    titleMaxWidth,
+    activeSquadTitleFontFamily,
+    titleFontSize * 0.7
+  );
+  const teams = [
+    { team: data.left, title: sharedTeamTitles[0], titlePoint: layout.header.topTitle, formationPoint: layout.header.topFormation },
+    { team: data.right, title: sharedTeamTitles[1], titlePoint: layout.header.bottomTitle, formationPoint: layout.header.bottomFormation }
+  ];
+
+  teams.forEach(({ team, title, titlePoint, formationPoint }) => {
+    drawCenteredText(context, title.text, titlePoint.x, titlePoint.y, {
+      fontSize: title.fontSize,
+      minFontSize: title.fontSize,
+      fontFamily: activeSquadTitleFontFamily,
+      fillStyle: textPalette.headerTitle
+    });
+
+    drawCenteredText(context, [team.formation, team.coach].filter(Boolean).join(" | "), formationPoint.x, formationPoint.y, {
+      fontSize: subFontSize,
+      fontFamily: activeGraphicTextFamily,
+      fillStyle: textPalette.headerMeta,
+      maxWidth: titleMaxWidth
+    });
+  });
+
+  drawCenteredText(context, data.matchInfo, layout.header.info.x, layout.header.info.y, {
+    fontSize: infoFontSize,
+    fontFamily: activeMatchInfoFontFamily,
+    fillStyle: textPalette.headerInfo,
+    maxWidth: titleMaxWidth
+  });
+}
+
+function drawVerticalPlayers(context, teamsData, layout) {
+  const players = teamsData.flatMap((teamData) => getVerticalPlayerRenderData(teamData, layout));
+  measureVerticalPlayerFootprints(context, players);
+  resolveVerticalPlayerCollisions(players, layout);
+
+  players.forEach((player) => {
+    drawPlayer(context, player);
+  });
+}
+
+function getVerticalPlayerRenderData(teamData, layout) {
+  const pitch = layout.pitch;
+  const playablePitch = getPlayablePitchBounds(pitch, getVerticalPlayableAreaRatios());
+  const halfHeight = playablePitch.height / 2;
+  const midY = playablePitch.y + halfHeight;
+  const positions = formations[teamData.formation];
+  const isTop = teamData.side === "left";
+  const markerPadding = 20 * layout.scaleX;
+  const midfieldShift = 10 * layout.unitY;
+  const visibleStarters = teamData.starters.slice(0, positions.length);
+  const goalkeeperInsetY = 30 * layout.unitY;
+  const goalkeeperBottomInsetY = 74 * layout.unitY;
+  const goalkeeperAnchorFlexX = 14 * layout.unitX;
+  const goalkeeperAnchorFlexY = 6 * layout.unitY;
+  const halfBounds = {
+    minX: playablePitch.x + markerPadding,
+    maxX: playablePitch.x + playablePitch.width - markerPadding,
+    minY: isTop ? playablePitch.y + markerPadding : midY + markerPadding,
+    maxY: isTop ? midY - markerPadding : playablePitch.y + playablePitch.height - markerPadding
+  };
+
+  return visibleStarters.map((player, index) => {
+    const coord = positions[index];
+    // La squadra in alto attacca verso il basso: la sua fascia destra è a sinistra dello schermo.
+    const lateral = isTop ? 1 - coord.y : coord.y;
+    const isGoalkeeper = index === 0;
+    const x = playablePitch.x + lateral * playablePitch.width;
+    const y = isGoalkeeper
+      ? isTop
+        ? pitch.y + goalkeeperInsetY
+        : pitch.y + pitch.height - goalkeeperBottomInsetY
+      : isTop
+        ? playablePitch.y + coord.x * halfHeight + midfieldShift
+        : playablePitch.y + playablePitch.height - coord.x * halfHeight - midfieldShift;
+    const bounds = isGoalkeeper
+      ? {
+          minX: x - goalkeeperAnchorFlexX,
+          maxX: x + goalkeeperAnchorFlexX,
+          minY: y - goalkeeperAnchorFlexY,
+          maxY: y + goalkeeperAnchorFlexY
+        }
+      : halfBounds;
+
+    return {
+      name: player,
+      x,
+      y,
+      anchorX: x,
+      anchorY: y,
+      side: teamData.side,
+      pitch,
+      playablePitch,
+      renderBounds: isGoalkeeper ? pitch : playablePitch,
+      minX: bounds.minX,
+      maxX: bounds.maxX,
+      minY: bounds.minY,
+      maxY: bounds.maxY,
+      markerColor: teamData.markerColor,
+      markerBorderColor: teamData.markerBorderColor,
+      scale: layout.scaleX,
+      maxLabelWidth: 150 * layout.unitX
+    };
+  });
+}
+
+function measureVerticalPlayerFootprints(context, players) {
+  const activeGraphicTextFamily = getActiveGraphicTextFontFamily();
+  const fontSizeBoost = getActiveProjectTheme() === "betfair" ? 2 : 0;
+
+  context.save();
+  players.forEach((player) => {
+    // Stesse misure usate da drawPlayer, per sapere quanto spazio occupa ogni etichetta.
+    const fontSize = (13 + fontSizeBoost) * player.scale;
+    const minFontSize = (11.5 + fontSizeBoost) * player.scale;
+    const labelPaddingX = 5 * player.scale;
+    const labelPaddingY = 3.5 * player.scale;
+    const radius = 15 * player.scale;
+    const fitted = fitSingleLineText(
+      context,
+      player.name.toUpperCase(),
+      fontSize,
+      player.maxLabelWidth - labelPaddingX * 2,
+      activeGraphicTextFamily,
+      minFontSize
+    );
+    context.font = `500 ${fitted.fontSize}px ${activeGraphicTextFamily}`;
+    const labelWidth = context.measureText(fitted.text).width + labelPaddingX * 2;
+    player.footprintWidth = Math.max(labelWidth, radius * 2);
+    player.footprintHeight = radius * 2 + 3 * player.scale + fitted.fontSize + labelPaddingY * 2;
+
+    // drawPlayer tiene l'etichetta dentro il campo: il resolver deve partire dalla stessa posizione.
+    const innerPadding = 4 * player.scale;
+    const bounds = player.renderBounds;
+    player.minX = Math.max(player.minX, bounds.x + player.footprintWidth / 2 + innerPadding);
+    player.maxX = Math.min(player.maxX, bounds.x + bounds.width - player.footprintWidth / 2 - innerPadding);
+    player.x = clamp(player.x, player.minX, player.maxX);
+    player.anchorX = player.x;
+  });
+  context.restore();
+}
+
+function resolveVerticalPlayerCollisions(players, layout) {
+  const gapX = 8 * layout.unitX;
+  const gapY = 6 * layout.unitY;
+  const anchorFlexX = 34 * layout.unitX;
+  const anchorFlexY = 34 * layout.unitY;
+
+  for (let pass = 0; pass < 40; pass += 1) {
+    let moved = false;
+
+    for (let index = 0; index < players.length; index += 1) {
+      const current = players[index];
+
+      for (let nextIndex = index + 1; nextIndex < players.length; nextIndex += 1) {
+        const other = players[nextIndex];
+        const overlapX = (current.footprintWidth + other.footprintWidth) / 2 + gapX - Math.abs(other.x - current.x);
+        const overlapY = (current.footprintHeight + other.footprintHeight) / 2 + gapY - Math.abs(other.y - current.y);
+
+        if (overlapX <= 0.5 || overlapY <= 0.5) {
+          continue;
+        }
+
+        moved = true;
+        const directionX = other.x === current.x ? (current.anchorX <= other.anchorX ? 1 : -1) : Math.sign(other.x - current.x);
+        const shiftX = overlapX / 2;
+        const beforeCurrentX = current.x;
+        const beforeOtherX = other.x;
+
+        // Prima si allargano i giocatori sulla stessa linea...
+        current.x = clamp(current.x - directionX * shiftX, Math.max(current.minX, current.anchorX - anchorFlexX), Math.min(current.maxX, current.anchorX + anchorFlexX));
+        other.x = clamp(other.x + directionX * shiftX, Math.max(other.minX, other.anchorX - anchorFlexX), Math.min(other.maxX, other.anchorX + anchorFlexX));
+
+        const remainingOverlapX = overlapX - (Math.abs(current.x - beforeCurrentX) + Math.abs(other.x - beforeOtherX));
+        if (remainingOverlapX <= 0.5) {
+          continue;
+        }
+
+        // ...poi, se non basta, si sfalsano leggermente in profondità.
+        const directionY = other.y === current.y ? (index % 2 === 0 ? 1 : -1) : Math.sign(other.y - current.y);
+        const shiftY = overlapY / 2;
+        current.y = clamp(current.y - directionY * shiftY, Math.max(current.minY, current.anchorY - anchorFlexY), Math.min(current.maxY, current.anchorY + anchorFlexY));
+        other.y = clamp(other.y + directionY * shiftY, Math.max(other.minY, other.anchorY - anchorFlexY), Math.min(other.maxY, other.anchorY + anchorFlexY));
+      }
+    }
+
+    if (!moved) {
+      break;
+    }
+  }
+}
+
+function drawVerticalBenchAndMissing(context, teamData, halfLayout, layout) {
+  drawBoxContent(context, halfLayout.bench, "PANCHINA", teamData.bench.length ? teamData.bench : ["Nessuno"], layout, { listAlign: "left", titleAlign: "left" });
+  drawBoxContent(context, halfLayout.missing, "ASSENTI", teamData.missing.length ? teamData.missing : ["Nessuno"], layout, { listAlign: "right", titleAlign: "right" });
 }
 
 async function handleDownloadClick() {
@@ -1879,5 +2269,9 @@ function clamp(value, min, max) {
 }
 
 function updatePreviewSizeLabel() {
-  document.getElementById("preview-size-label").textContent = fixedOutputSize;
+  const formatKey = getActiveOutputFormatKey();
+  const format = outputFormats[formatKey];
+  document.getElementById("preview-size-label").textContent = format.size;
+  document.getElementById("download-btn").textContent = `Download JPEG ${format.size}`;
+  document.querySelector(".canvas-frame")?.setAttribute("data-orientation", formatKey);
 }
